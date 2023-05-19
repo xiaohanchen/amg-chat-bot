@@ -5,13 +5,13 @@
 //#ifdef SERVER_TEST
 
 #include <iostream>
-#include "../include/chat_server.h"
+#include "../include/chat_client.h"
 #include "../include/constants.h"
 
 int main(){
-    ChatServer chatServer;
+    ChatClient chatClient;
 
-    chatServer.start(CLIENT_PORT);
+    chatClient.connectToServer(SERVER_PORT, LOCALHOST);
 
     std::cout << "Server started" << std::endl;
     return 0;

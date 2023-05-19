@@ -20,7 +20,6 @@ bool ChatServer::start(int port, int max_connections, int max_events) {
     } catch (const std::exception &e) {
         std::cout << e.what() << std::endl;
         throw std::runtime_error("Failed to start the Chat Server");
-        return false;
     }
     return true;
 }
@@ -54,6 +53,7 @@ void ChatServer::_bindAddress(int port) {
 
 
 void ChatServer::_listenToClientConnections(int maxNumOfClients) {
+    std::cout << "start listen to clients" << std::endl;
     //listen to clients connect request
     if (listen(_sockFd, maxNumOfClients) < 0) {
         throw std::runtime_error(strerror(errno));
@@ -62,10 +62,13 @@ void ChatServer::_listenToClientConnections(int maxNumOfClients) {
 
 int ChatServer::acceptClient(int timeout) {
     //accept client connection
-    int clientFd = accept(_sockFd, NULL, NULL);
+    socklen_t socketSize  = sizeof(_clientAddr);
+    int clientFd = accept(_sockFd, (struct sockaddr*)&_clientAddr, &socketSize);
     if (clientFd < 0) {
         throw std::runtime_error(strerror(errno));
     }
+
+    std::cout << "found one client, new fd=" << clientFd << std::endl;
 
     //todo manage connected client
     return clientFd;

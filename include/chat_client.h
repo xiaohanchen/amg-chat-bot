@@ -8,6 +8,7 @@
 #include <iostream>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include "constants.h"
 
 /**
  * clientServer has functions:-
@@ -31,6 +32,10 @@ private:
      */
     void _connect(int port, const std::string& ip);
 
+    BufferCheckEnum _checkBuffer(const int fileDescriptor, const int timeout);
+
+    void _receiveData(const int fileDescriptor);
+
 public:
     ChatClient();
     ~ChatClient();
@@ -49,6 +54,8 @@ public:
      * @param command
      */
     void sendCommand(const std::string& command);
+
+    void readMsg();
 
 };
 

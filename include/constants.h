@@ -11,6 +11,13 @@ const std::string LOCALHOST = "127.0.0.1";
 const int SERVER_PORT = 70000;
 const int CLIENT_PORT = 80000;
 
+
+enum BufferCheckEnum {
+    FAILURE,
+    TIMEOUT,
+    SUCCESS
+};
+
 #endif //AMG_CHAT_BOT_CONSTANTS_H
 
 

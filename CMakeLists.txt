@@ -8,7 +8,12 @@ add_subdirectory(
 )
 
 add_executable(ServerTestExe test/server_test.cpp)
+add_executable(ClientTestExe test/client_test.cpp)
 
 target_link_libraries(ServerTestExe
+    ChatLib
+)
+
+target_link_libraries(ClientTestExe
     ChatLib
 )
