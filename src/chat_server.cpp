@@ -13,10 +13,22 @@ ChatServer::~ChatServer() {
 
 bool ChatServer::start(int port, int max_connections, int max_events) {
     try {
+        //open socket
         _initSocket();
+
+        //bind port to socket
         _bindAddress(port);
+
+        //start listen, async (always listening to new connections until max_connections is reached)
         _listenToClientConnections(max_connections);
+
         _maxEventAllowed = max_events;
+
+        //accept clients, this is blocking
+        int connected_client_socket = _acceptClient(0);
+        std::cout << "socket contected with fd=" << _sockFd << std::endl;
+
+
     } catch (const std::exception &e) {
         std::cout << e.what() << std::endl;
         throw std::runtime_error("Failed to start the Chat Server");
@@ -60,7 +72,9 @@ void ChatServer::_listenToClientConnections(int maxNumOfClients) {
     }
 }
 
-int ChatServer::acceptClient(int timeout) {
+int ChatServer::_acceptClient(int timeout) {
+    std::cout << "wait for client to be connected" << std::endl;
+
     //accept client connection
     socklen_t socketSize  = sizeof(_clientAddr);
     int clientFd = accept(_sockFd, (struct sockaddr*)&_clientAddr, &socketSize);

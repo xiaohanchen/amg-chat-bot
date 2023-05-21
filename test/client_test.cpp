@@ -11,9 +11,9 @@
 int main(){
     ChatClient chatClient;
 
-    chatClient.connectToServer(SERVER_PORT, LOCALHOST);
+    chatClient.connectToServer(LOCALHOST, SERVER_PORT);
 
-    std::cout << "Server started" << std::endl;
+    std::cout << "client started" << std::endl;
     return 0;
 }
 

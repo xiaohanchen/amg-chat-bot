@@ -32,6 +32,8 @@ private:
      */
     void _connect(int port, const std::string& ip);
 
+    void _setAddress(const std::string& address, int port);
+
     BufferCheckEnum _checkBuffer(const int fileDescriptor, const int timeout);
 
     void _receiveData(const int fileDescriptor);
@@ -47,7 +49,7 @@ public:
      * @param ip
      * @return
      */
-    bool connectToServer(int port, const std::string& ip);
+    bool connectToServer(const std::string& ip, int port);
 
     /**
      * send command to server

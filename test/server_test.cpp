@@ -11,7 +11,7 @@
 int main(){
     ChatServer chatServer;
 
-    chatServer.start(CLIENT_PORT);
+    chatServer.start(SERVER_PORT);
 
     std::cout << "Server started" << std::endl;
     return 0;

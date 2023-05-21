@@ -8,8 +8,8 @@
 #define AMG_CHAT_BOT_CONSTANTS_H
 
 const std::string LOCALHOST = "127.0.0.1";
-const int SERVER_PORT = 70000;
-const int CLIENT_PORT = 80000;
+const int SERVER_PORT = 65100;
+const int CLIENT_PORT = 65200;
 
 
 enum BufferCheckEnum {

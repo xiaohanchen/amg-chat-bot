@@ -47,7 +47,12 @@ private:
      */
     void _listenToClientConnections(int maxNumOfClients);
 
-
+    /**
+     * accept a connection from client
+     * @param timeout timeout in seconds, 0 means blocking
+     * @return
+     */
+    int _acceptClient(int timeout=0);
 public:
     ChatServer();
     ~ChatServer();
@@ -60,13 +65,6 @@ public:
      * @return
      */
     bool start(int port, int max_connections=2, int max_events=100);
-
-    /**
-     * accept a connection from client
-     * @param timeout timeout in seconds, 0 means blocking
-     * @return
-     */
-    int acceptClient(int timeout=0);
 
 };
 
