@@ -2,7 +2,9 @@
 // Created by Haiying on 16/05/2023.
 //
 
+#include <arpa/inet.h>
 #include "../include/chat_server.h"
+#include "../include/connected_client.h"
 
 
 ChatServer::ChatServer() {
@@ -25,10 +27,16 @@ bool ChatServer::start(int port, int max_connections, int max_events) {
         _maxEventAllowed = max_events;
 
         //accept clients, this is blocking
-        int connected_client_socket = _acceptClient(0);
-        std::cout << "socket contected with fd=" << _sockFd << std::endl;
+        int connectedClientSocket = _acceptClient(0);
+        std::cout << "socket contected with fd=" << connectedClientSocket << std::endl;
+        std::cout << "socket contected with ip=" << inet_ntoa(_clientAddr.sin_addr) << std::endl;
 
+        //register the connected client and new thread to recv message
+        ConnectedClient *pClient = new ConnectedClient(connectedClientSocket);
+        pClient->startRecv();
 
+        
+        
     } catch (const std::exception &e) {
         std::cout << e.what() << std::endl;
         throw std::runtime_error("Failed to start the Chat Server");

@@ -13,7 +13,8 @@ int main(){
 
     chatClient.connectToServer(LOCALHOST, SERVER_PORT);
 
-    std::cout << "client started" << std::endl;
+    chatClient.sendMsg("hello world");
+
     return 0;
 }
 

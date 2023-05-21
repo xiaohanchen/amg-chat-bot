@@ -14,6 +14,10 @@ int main(){
     chatServer.start(SERVER_PORT);
 
     std::cout << "Server started" << std::endl;
+
+    while (true){
+
+    }
     return 0;
 }
 

@@ -32,15 +32,34 @@ bool ChatClient::connectToServer(const std::string& ip, int port){
 
     std::cout << "connected to server" << std::endl;
 
-    //read from server thread todo
+    return true;
+}
 
-    return false;
+
+bool ChatClient::sendMsg(const std::string& msg){
+    
+        //send msg to server using the connected socket
+        // 1char=1B
+        ssize_t bytesSent = send(_sockFd, msg.c_str(), msg.length(), 0);
+        if (bytesSent < 0){
+            throw std::runtime_error("Failed to send msg to server");
+        }
+
+        if(bytesSent < msg.length()){
+            char errorMsg[512];
+            sprintf(errorMsg, "msg sent incomplete, %lu bytes out of %lu was sent to client", bytesSent, msg.length());
+            throw std::runtime_error(errorMsg);
+        }
+
+        std::cout << "msg sent to server" << std::endl;
+
+        return true;
+    
 }
 
 
 
-
-void ChatClient::readMsg(){
+std::string ChatClient::readMsg(){
 
     // check fd if buffer ready to read
 

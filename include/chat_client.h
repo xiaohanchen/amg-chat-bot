@@ -47,17 +47,23 @@ public:
      * connect to server
      * @param port
      * @param ip
-     * @return
+     * @return true if connected
      */
     bool connectToServer(const std::string& ip, int port);
 
     /**
      * send command to server
      * @param command
+     * @return true if success
      */
-    void sendCommand(const std::string& command);
+    bool sendMsg(const std::string& msg);
 
-    void readMsg();
+
+    /**
+     * read message from server
+     * @return message
+     */
+    std::string readMsg();
 
 };
 
