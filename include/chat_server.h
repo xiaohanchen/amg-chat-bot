@@ -64,7 +64,12 @@ public:
      * @param max_events
      * @return
      */
-    bool start(int port, int max_connections=2, int max_events=100);
+    bool start(int port, int max_connections=3);
+
+    /**
+     * accept client connection
+     */
+    void acceptClient();
 
 };
 

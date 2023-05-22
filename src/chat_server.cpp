@@ -14,7 +14,7 @@ ChatServer::~ChatServer() {
 
 }
 
-bool ChatServer::start(int port, int max_connections, int max_events) {
+bool ChatServer::start(int port, int max_connections) {
     try {
         //open socket
         _initSocket();
@@ -24,19 +24,6 @@ bool ChatServer::start(int port, int max_connections, int max_events) {
 
         //start listen, async (always listening to new connections until max_connections is reached)
         _listenToClientConnections(max_connections);
-
-        _maxEventAllowed = max_events;
-
-        //accept clients, this is blocking
-        int connectedClientSocket = _acceptClient(0);
-        std::cout << "socket contected with fd=" << connectedClientSocket << std::endl;
-        std::cout << "socket contected with ip=" << inet_ntoa(_clientAddr.sin_addr) << std::endl;
-
-        //register the connected client and new thread to recv message
-        ConnectedClient *pClient = new ConnectedClient(connectedClientSocket);
-        pClient->startRecv();
-
-        
         
     } catch (const std::exception &e) {
         std::cout << e.what() << std::endl;
@@ -46,6 +33,20 @@ bool ChatServer::start(int port, int max_connections, int max_events) {
 }
 
 
+
+void ChatServer::acceptClient(){
+    //should use some other condition
+    while(true){
+        //accept clients, this is blocking
+        int connectedClientSocket = _acceptClient(0);
+        std::cout << "socket contected with fd=" << connectedClientSocket << std::endl;
+        std::cout << "socket contected with ip=" << inet_ntoa(_clientAddr.sin_addr) << std::endl;
+
+        //register the connected client and new thread to recv message
+        ConnectedClient *pClient = new ConnectedClient(connectedClientSocket);
+        pClient->startRecv();
+    }
+}
 
 /* ================================== BELOW ARE THE PRIVATE METHODS==================================*/
 void ChatServer::_initSocket() {
