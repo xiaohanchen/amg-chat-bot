@@ -9,6 +9,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include "constants.h"
+#include <thread>
 
 /**
  * clientServer has functions:-
@@ -23,20 +24,25 @@ private:
     struct sockaddr_in _serverAddr;
 
     /**
-     * initialise the socket
+     * initialise the socket,  client doesnt need to bind
      */
     void _initSocket();
 
     /**
-     * connect to server
+     * set server address for the socket to connect
+     * @param address
+     * @param port
      */
-    void _connect(int port, const std::string& ip);
-
     void _setAddress(const std::string& address, int port);
 
-    BufferCheckEnum _checkBuffer(const int fileDescriptor, const int timeout);
+    void _checkBufAndRecv(const int& socketFd) const;
 
-    void _receiveData(const int fileDescriptor);
+    /**
+     * read message from server
+     * @return message
+     */
+    void _readMsg();
+
 
 public:
     ChatClient();
@@ -57,13 +63,6 @@ public:
      * @return true if success
      */
     bool sendMsg(const std::string& msg);
-
-
-    /**
-     * read message from server
-     * @return message
-     */
-    std::string readMsg();
 
 };
 

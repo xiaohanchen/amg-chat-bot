@@ -6,6 +6,7 @@
 #include <iostream>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <sys/select.h>
 
 ChatClient::ChatClient(){
 
@@ -30,6 +31,10 @@ bool ChatClient::connectToServer(const std::string& ip, int port){
         throw std::runtime_error("Failed to connect to server");
     }
 
+    //listen resp from server
+    std::thread *pThread = new std::thread(&ChatClient::_readMsg, this);
+
+
     std::cout << "connected to server" << std::endl;
 
     return true;
@@ -51,7 +56,7 @@ bool ChatClient::sendMsg(const std::string& msg){
             throw std::runtime_error(errorMsg);
         }
 
-        std::cout << "msg sent to server" << std::endl;
+        std::cout << "msg sent to server" << msg << std::endl;
 
         return true;
     
@@ -59,13 +64,40 @@ bool ChatClient::sendMsg(const std::string& msg){
 
 
 
-std::string ChatClient::readMsg(){
+void ChatClient::_readMsg(){
+
+    //should use client connect status rather than bool
+    while(true){
+        _checkBufAndRecv(_sockFd);
+
+    }
+
+}
+
+void ChatClient::_checkBufAndRecv(const int& _socketFd ) const{
+    fd_set _readfds;
+    FD_ZERO(&_readfds);
+    FD_SET(_sockFd, &_readfds);
 
     // check fd if buffer ready to read
+    std::cout << "read buffer checking..." << std::endl;
+    int bufferCheckRes = select(_sockFd + 1, &_readfds, NULL, NULL, NULL);
 
-
-    //read from buffer
-
+    if(bufferCheckRes == -1){
+        std::cout << "read buffer check failed" << std::endl;
+    }else if(bufferCheckRes == 0){
+        std::cout << "read buffer check timeout" << std::endl;
+    }else{
+        //read from buffer
+        char _buffer[MAX_CHAR_TO_READ] = {0};
+        ssize_t bytesReceived = recv(_sockFd, _buffer, MAX_CHAR_TO_READ, 0);
+        if(bytesReceived < 1){
+            std::cout << "error to recv" << _buffer << std::endl;
+        }else{
+            std::cout << "received bytes: " << bytesReceived << std::endl;
+            std::cout << "received message: " << _buffer << std::endl;
+        }
+    }
 }
 
 

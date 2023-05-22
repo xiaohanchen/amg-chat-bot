@@ -11,6 +11,7 @@ ChatServer::ChatServer() {
 }
 
 ChatServer::~ChatServer() {
+
 }
 
 bool ChatServer::start(int port, int max_connections, int max_events) {

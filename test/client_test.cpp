@@ -5,6 +5,7 @@
 //#ifdef SERVER_TEST
 
 #include <iostream>
+#include <unistd.h>
 #include "../include/chat_client.h"
 #include "../include/constants.h"
 
@@ -13,8 +14,12 @@ int main(){
 
     chatClient.connectToServer(LOCALHOST, SERVER_PORT);
 
-    chatClient.sendMsg("hello world");
 
+    int i = 0;
+    while (true){
+        chatClient.sendMsg("hello world " + std::to_string(i++));
+        sleep(2);
+    }
     return 0;
 }
 

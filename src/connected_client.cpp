@@ -27,16 +27,33 @@ void ConnectedClient::startRecv(){
 
 void ConnectedClient::_receiveData(){
     while(true) {
-
         fd_set _readfds;
         FD_ZERO(&_readfds);
         FD_SET(_connectedSockFd, &_readfds);
-        int res = select(_connectedSockFd + 1, &_readfds, NULL, NULL, NULL);
 
-        if(res > 0){
-            char _buffer[MAX_CHAR_TO_READ];
-            ssize_t bytesReceived = recv(_connectedSockFd, _buffer, sizeof(_buffer), 0);
-            std::cout << "bytesReceived=" << _buffer << std::endl;
+        std::cout << "read buffer checking..." << std::endl;
+        int bufferCheckRes = select(_connectedSockFd + 1, &_readfds, NULL, NULL, NULL);
+
+        if(bufferCheckRes == -1){
+            std::cout << "read buffer check failed" << std::endl;
+        }else if(bufferCheckRes == 0){
+            std::cout << "read buffer check timeout" << std::endl;
+        }else{
+            char _buffer[MAX_CHAR_TO_READ] = {0};
+            ssize_t bytesReceived = recv(_connectedSockFd, _buffer, MAX_CHAR_TO_READ, 0);
+            if(bytesReceived < 1){
+                std::cout << "error to recv" << _buffer << std::endl;
+            }else{
+                std::cout << "received bytes: " << bytesReceived << std::endl;
+                std::cout << "received message: " << _buffer << std::endl;
+
+                //ACK to client
+                std::string msgAck = "ACK";
+                ssize_t sendRes = send(_connectedSockFd, &msgAck, msgAck.length(), 0);
+                if(sendRes < 0) {
+                    std::cout << "error to send ACK" << std::endl;
+                }
+            }
         }
 
     }
