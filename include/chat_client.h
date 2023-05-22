@@ -64,6 +64,11 @@ public:
      */
     bool sendMsg(const std::string& msg);
 
+    /**
+     * close the socket
+     */
+    void close();
+
 };
 
 

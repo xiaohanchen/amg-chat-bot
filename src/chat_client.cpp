@@ -7,6 +7,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <sys/select.h>
+#include <unistd.h>
 
 ChatClient::ChatClient(){
 
@@ -62,6 +63,13 @@ bool ChatClient::sendMsg(const std::string& msg){
     
 }
 
+void ChatClient::close(){
+    //close the socket
+    ::close(_sockFd);
+}
+
+
+/* ================================== BELOW ARE THE PRIVATE METHODS==================================*/
 
 
 void ChatClient::_readMsg(){

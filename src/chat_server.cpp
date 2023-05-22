@@ -3,6 +3,7 @@
 //
 
 #include <arpa/inet.h>
+#include <unistd.h>
 #include "../include/chat_server.h"
 #include "../include/connected_client.h"
 
@@ -14,7 +15,7 @@ ChatServer::~ChatServer() {
 
 }
 
-bool ChatServer::start(int port, int max_connections) {
+bool ChatServer:: start(int port, int max_connections) {
     try {
         //open socket
         _initSocket();
@@ -48,6 +49,12 @@ void ChatServer::acceptClient(){
     }
 }
 
+void ChatServer::close(){
+    //close the socket
+    ::close(_sockFd);
+}
+
+
 /* ================================== BELOW ARE THE PRIVATE METHODS==================================*/
 void ChatServer::_initSocket() {
     //start TCP STREAM socket
@@ -74,10 +81,10 @@ void ChatServer::_bindAddress(int port) {
 }
 
 
-void ChatServer::_listenToClientConnections(int maxNumOfClients) {
+void ChatServer::_listenToClientConnections(int connectionQueueLen) {
     std::cout << "start listen to clients" << std::endl;
     //listen to clients connect request
-    if (listen(_sockFd, maxNumOfClients) < 0) {
+    if (listen(_sockFd, connectionQueueLen) < 0) {
         throw std::runtime_error(strerror(errno));
     }
 }
