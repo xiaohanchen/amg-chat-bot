@@ -6,6 +6,8 @@
 #include <iostream>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <sys/select.h>
+#include <unistd.h>
 
 ChatClient::ChatClient(){
 
@@ -30,23 +32,80 @@ bool ChatClient::connectToServer(const std::string& ip, int port){
         throw std::runtime_error("Failed to connect to server");
     }
 
+    //listen resp from server
+    std::thread *pThread = new std::thread(&ChatClient::_readMsg, this);
+
+
     std::cout << "connected to server" << std::endl;
 
-    //read from server thread todo
-
-    return false;
+    return true;
 }
 
 
+bool ChatClient::sendMsg(const std::string& msg){
+    
+        //send msg to server using the connected socket
+        // 1char=1B
+        ssize_t bytesSent = send(_sockFd, msg.c_str(), msg.length(), 0);
+        if (bytesSent < 0){
+            throw std::runtime_error("Failed to send msg to server");
+        }
+
+        if(bytesSent < msg.length()){
+            char errorMsg[512];
+            sprintf(errorMsg, "msg sent incomplete, %lu bytes out of %lu was sent to client", bytesSent, msg.length());
+            throw std::runtime_error(errorMsg);
+        }
+
+        std::cout << "msg sent to server" << msg << std::endl;
+
+        return true;
+    
+}
+
+void ChatClient::close(){
+    //close the socket
+    ::close(_sockFd);
+}
 
 
-void ChatClient::readMsg(){
+/* ================================== BELOW ARE THE PRIVATE METHODS==================================*/
+
+
+void ChatClient::_readMsg(){
+
+    //should use client connect status rather than bool
+    while(true){
+        _checkBufAndRecv(_sockFd);
+
+    }
+
+}
+
+void ChatClient::_checkBufAndRecv(const int& _socketFd ) const{
+    fd_set _readfds;
+    FD_ZERO(&_readfds);
+    FD_SET(_sockFd, &_readfds);
 
     // check fd if buffer ready to read
+    std::cout << "read buffer checking..." << std::endl;
+    int bufferCheckRes = select(_sockFd + 1, &_readfds, NULL, NULL, NULL);
 
-
-    //read from buffer
-
+    if(bufferCheckRes == -1){
+        std::cout << "read buffer check failed" << std::endl;
+    }else if(bufferCheckRes == 0){
+        std::cout << "read buffer check timeout" << std::endl;
+    }else{
+        //read from buffer
+        char _buffer[MAX_CHAR_TO_READ] = {0};
+        ssize_t bytesReceived = recv(_sockFd, _buffer, MAX_CHAR_TO_READ, 0);
+        if(bytesReceived < 1){
+            std::cout << "error to recv" << _buffer << std::endl;
+        }else{
+            std::cout << "received bytes: " << bytesReceived << std::endl;
+            std::cout << "received message: " << _buffer << std::endl;
+        }
+    }
 }
 
 

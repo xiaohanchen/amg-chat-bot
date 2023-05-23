@@ -5,15 +5,32 @@
 //#ifdef SERVER_TEST
 
 #include <iostream>
+#include <thread>
+#include <csignal>
 #include "../include/chat_server.h"
 #include "../include/constants.h"
+ChatServer chatServer;
+
+void processExit(int i){
+    std::cout << "process exit..." <<std::endl;
+    chatServer.close();
+    exit(0);
+
+}
 
 int main(){
-    ChatServer chatServer;
+    signal(SIGINT, processExit);
+    signal(SIGTERM, processExit);
+    signal(SIGHUP, processExit);
 
-    chatServer.start(SERVER_PORT);
-
+    chatServer.start(SERVER_PORT,2);
     std::cout << "Server started" << std::endl;
+
+    new std::thread(&ChatServer::acceptClient, chatServer);
+
+    while (true){
+
+    }
     return 0;
 }
 

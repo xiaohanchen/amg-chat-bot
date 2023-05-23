@@ -23,9 +23,6 @@ private:
     //file descriptor for the socket
     int _sockFd;
 
-    //max events allowed, event is a connection
-    int _maxEventAllowed;
-
     //server address
     struct sockaddr_in _serverAddr;
     struct sockaddr_in _clientAddr;
@@ -43,9 +40,9 @@ private:
 
     /**
      * listen to clients, blocking style
-     * @param maxNumOfClients
+     * @param connectionQueueLen
      */
-    void _listenToClientConnections(int maxNumOfClients);
+    void _listenToClientConnections(int connectionQueueLen);
 
     /**
      * accept a connection from client
@@ -64,7 +61,17 @@ public:
      * @param max_events
      * @return
      */
-    bool start(int port, int max_connections=2, int max_events=100);
+    bool start(int port, int max_connections=3);
+
+    /**
+     * accept client connection
+     */
+    void acceptClient();
+
+    /**
+     * shut down the server socket
+     */
+    void close();
 
 };
 

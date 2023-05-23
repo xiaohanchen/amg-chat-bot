@@ -2,16 +2,20 @@
 // Created by Haiying on 16/05/2023.
 //
 
+#include <arpa/inet.h>
+#include <unistd.h>
 #include "../include/chat_server.h"
+#include "../include/connected_client.h"
 
 
 ChatServer::ChatServer() {
 }
 
 ChatServer::~ChatServer() {
+
 }
 
-bool ChatServer::start(int port, int max_connections, int max_events) {
+bool ChatServer:: start(int port, int max_connections) {
     try {
         //open socket
         _initSocket();
@@ -21,14 +25,7 @@ bool ChatServer::start(int port, int max_connections, int max_events) {
 
         //start listen, async (always listening to new connections until max_connections is reached)
         _listenToClientConnections(max_connections);
-
-        _maxEventAllowed = max_events;
-
-        //accept clients, this is blocking
-        int connected_client_socket = _acceptClient(0);
-        std::cout << "socket contected with fd=" << _sockFd << std::endl;
-
-
+        
     } catch (const std::exception &e) {
         std::cout << e.what() << std::endl;
         throw std::runtime_error("Failed to start the Chat Server");
@@ -36,6 +33,26 @@ bool ChatServer::start(int port, int max_connections, int max_events) {
     return true;
 }
 
+
+
+void ChatServer::acceptClient(){
+    //should use some other condition
+    while(true){
+        //accept clients, this is blocking
+        int connectedClientSocket = _acceptClient(0);
+        std::cout << "socket contected with fd=" << connectedClientSocket << std::endl;
+        std::cout << "socket contected with ip=" << inet_ntoa(_clientAddr.sin_addr) << std::endl;
+
+        //register the connected client and new thread to recv message
+        ConnectedClient *pClient = new ConnectedClient(connectedClientSocket);
+        pClient->startRecv();
+    }
+}
+
+void ChatServer::close(){
+    //close the socket
+    ::close(_sockFd);
+}
 
 
 /* ================================== BELOW ARE THE PRIVATE METHODS==================================*/
@@ -64,10 +81,10 @@ void ChatServer::_bindAddress(int port) {
 }
 
 
-void ChatServer::_listenToClientConnections(int maxNumOfClients) {
+void ChatServer::_listenToClientConnections(int connectionQueueLen) {
     std::cout << "start listen to clients" << std::endl;
     //listen to clients connect request
-    if (listen(_sockFd, maxNumOfClients) < 0) {
+    if (listen(_sockFd, connectionQueueLen) < 0) {
         throw std::runtime_error(strerror(errno));
     }
 }
