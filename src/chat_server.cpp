@@ -6,25 +6,42 @@
 #include <unistd.h>
 #include "../include/chat_server.h"
 #include "../include/connected_client.h"
+#include "../include/server_worker.h"
 
 
 ChatServer::ChatServer() {
 }
 
+ChatServer::ChatServer(int maxWorkerThreadNum) : _maxWorkerThreadNum(maxWorkerThreadNum) {}
+
 ChatServer::~ChatServer() {
 
 }
 
-bool ChatServer:: start(int port, int max_connections) {
+bool ChatServer:: start(int port, int connectionQueueLen, int maxNumWorker) {
     try {
+
         //open socket
         _initSocket();
 
         //bind port to socket
         _bindAddress(port);
 
-        //start listen, async (always listening to new connections until max_connections is reached)
-        _listenToClientConnections(max_connections);
+        //start listen, async (always listening to new connections until connectionQueueLen is reached)
+        _listenToClientConnections(connectionQueueLen);
+        
+        //start server workers as thread to check and read socket buffer
+        for (int i = 0; i < maxNumWorker; ++i) {
+            ServerWorker * worker = new ServerWorker();
+            _serverWorkers.push_back(worker);
+            worker->startRun();
+        }
+
+        //start thread accepting clients
+        new std::thread(&ChatServer::acceptClient, this);
+        
+        
+
         
     } catch (const std::exception &e) {
         std::cout << e.what() << std::endl;
@@ -42,7 +59,7 @@ void ChatServer::acceptClient(){
         int connectedClientSocket = _acceptClient(0);
         std::cout << "socket contected with fd=" << connectedClientSocket << std::endl;
         std::cout << "socket contected with ip=" << inet_ntoa(_clientAddr.sin_addr) << std::endl;
-
+        std::cout << "socket contected with port=" << ntohs(_clientAddr.sin_port) << std::endl;
         //register the connected client and new thread to recv message
         ConnectedClient *pClient = new ConnectedClient(connectedClientSocket);
         pClient->startRecv();
@@ -104,5 +121,6 @@ int ChatServer::_acceptClient(int timeout) {
     //todo manage connected client
     return clientFd;
 }
+
 
 

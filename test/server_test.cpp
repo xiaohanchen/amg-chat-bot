@@ -26,8 +26,6 @@ int main(){
     chatServer.start(SERVER_PORT,2);
     std::cout << "Server started" << std::endl;
 
-    new std::thread(&ChatServer::acceptClient, chatServer);
-
     while (true){
 
     }
