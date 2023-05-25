@@ -23,6 +23,8 @@ private:
 
     struct sockaddr_in _serverAddr;
 
+    bool _connected = false;
+
     /**
      * initialise the socket,  client doesnt need to bind
      */
@@ -35,7 +37,7 @@ private:
      */
     void _setAddress(const std::string& address, int port);
 
-    void _checkBufAndRecv(const int& socketFd) const;
+    void _checkBufAndRecv(const int& socketFd);
 
     /**
      * read message from server
