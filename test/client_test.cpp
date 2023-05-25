@@ -41,7 +41,7 @@ int main(){
         chatClient2.sendMsg("2hello world " + std::to_string(i++));
         chatClient3.sendMsg("3hello world " + std::to_string(i++));
         chatClient4.sendMsg("4hello world " + std::to_string(i++));
-        sleep(1);
+        sleep(4);
     }
     return 0;
 }

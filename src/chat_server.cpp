@@ -5,7 +5,6 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include "../include/chat_server.h"
-#include "../include/connected_client.h"
 #include "../include/server_worker.h"
 
 
@@ -57,12 +56,25 @@ void ChatServer::acceptClient(){
     while(true){
         //accept clients, this is blocking
         int connectedClientSocket = _acceptClient(0);
-        std::cout << "socket contected with fd=" << connectedClientSocket << std::endl;
-        std::cout << "socket contected with ip=" << inet_ntoa(_clientAddr.sin_addr) << std::endl;
-        std::cout << "socket contected with port=" << ntohs(_clientAddr.sin_port) << std::endl;
+        std::cout << "socket contected with ip=" << inet_ntoa(_clientAddr.sin_addr)
+            << "port=" << ntohs(_clientAddr.sin_port)
+            << "fd=" << connectedClientSocket << std::endl;
         //register the connected client and new thread to recv message
         ConnectedClient *pClient = new ConnectedClient(connectedClientSocket);
-        pClient->startRecv();
+
+
+        //BIO mode, new thread for each new connection
+        //pClient->startRecv();
+
+        //NIO mode, add connection if the worker is not full.
+        // better solution could be: distribute clients across workers
+        for (const auto &item: _serverWorkers){
+            if (item->isAvailable()){
+                item->addConnectedClient(*pClient);
+                break;
+            }
+        }
+
     }
 }
 
@@ -115,8 +127,6 @@ int ChatServer::_acceptClient(int timeout) {
     if (clientFd < 0) {
         throw std::runtime_error(strerror(errno));
     }
-
-    std::cout << "found one client, new fd=" << clientFd << std::endl;
 
     //todo manage connected client
     return clientFd;

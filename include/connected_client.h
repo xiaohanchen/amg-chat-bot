@@ -32,4 +32,14 @@ public:
 
     void startRecv();
 
+    int getConnectedSockFd() const;
+
+    /**
+     * read from buffer, should check buffer beforehand
+     *
+     * @param buffer buffer to be written to
+     * @return
+     */
+    char * recvFromBuffer();
+
 };
