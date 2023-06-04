@@ -18,8 +18,19 @@ class ServerWorker {
 private:
     //managed connections
     std::vector<ConnectedClient> _connectedClients;
+
+    //connections to be added to "_connectedClients"
     std::vector<ConnectedClient> _clientsToBeAdded;
+
+    //background thread to check if there is data to be read
     std::thread* _workerThread = nullptr;
+
+    //worker count
+    static int workerCount;
+
+    //id
+    int workerId;
+
 
     /**
      * where multiplexing happens
@@ -60,6 +71,11 @@ public:
      */
     bool isAvailable();
 
+    /**
+     * WORKER_<workerCount>
+     * @return
+     */
+    std::string getWorkerName();
 
 };
 

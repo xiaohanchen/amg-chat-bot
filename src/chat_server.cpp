@@ -63,7 +63,7 @@ void ChatServer::acceptClient(){
         ConnectedClient *pClient = new ConnectedClient(connectedClientSocket);
 
 
-        //BIO mode, new thread for each new connection
+        //BIO mode, new thread for each new connection DEPRECATED
         //pClient->startRecv();
 
         //NIO mode, add connection if the worker is not full.

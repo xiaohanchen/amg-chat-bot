@@ -69,10 +69,10 @@ char * ConnectedClient::recvFromBuffer() {
     ssize_t bytesReceived = recv(_connectedSockFd, _buffer, MAX_CHAR_TO_READ, 0);
     if(bytesReceived < 1){
         //client disconnected
-        std::cout << "error to recv" << _buffer << "from socketFd=" << _connectedSockFd << std::endl;
+        std::cout << "error to recv" << _buffer << " from socketFd=" << _connectedSockFd << std::endl;
         return nullptr;
     }else {
-        std::cout << "received message: " << _buffer << "from socketFd=" << _connectedSockFd << std::endl;
+        std::cout << "received message: " << _buffer << " from socketFd=" << _connectedSockFd << std::endl;
         return _buffer;
     }
 

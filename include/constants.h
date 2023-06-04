@@ -7,8 +7,20 @@
 #ifndef AMG_CHAT_BOT_CONSTANTS_H
 #define AMG_CHAT_BOT_CONSTANTS_H
 
-#define MAX_CLIENT_NUM_PER_WORKER 10000
+//number of workers thraeds
+#define NUMBER_OF_WORKERS 10
+
+//max number of clients per worker
+#define MAX_CLIENT_NUM_PER_WORKER 10
+
+//select, epoll, kqueue
 #define COMMUNICATION_TYPE SELECT
+
+// number of clients to be created
+#define NUMBER_OF_CLIENTS 50
+
+//interval in sec between group of clients sending message
+#define CLIENT_MSG_SEND_INTERVAL 2
 
 const std::string SERVER_HOST = "127.0.0.1";
 const int SERVER_PORT = 65102;

@@ -5,8 +5,11 @@
 #include <sys/socket.h>
 #include "../include/server_worker.h"
 
+int ServerWorker::workerCount = 0;
 
 ServerWorker::ServerWorker() {
+    workerCount++;
+    workerId = workerCount;
 }
 
 ServerWorker::~ServerWorker() {}
@@ -22,7 +25,7 @@ void ServerWorker::startRun() {
 //select
 void ServerWorker::_onRunSelect() {
     while(true){
-        std::cout << "run select ..." << std::endl;
+        std::cout << getWorkerName() << " run select for clientNum=" << _connectedClients.size()<< std::endl;
 
         //todo check if there are new clients to be added
 
@@ -43,6 +46,7 @@ void ServerWorker::_onRunSelect() {
             FD_SET(item.getConnectedSockFd(), &_readfds);
             maxSocketFd = std::max(maxSocketFd, item.getConnectedSockFd());
         }
+        //select API to check if there is data in buffer
         int bufferCheckRes = select(maxSocketFd + 1, &_readfds, NULL, NULL, NULL);
         if(bufferCheckRes == -1){
             std::cout << "read buffer check failed" << std::endl;
@@ -54,22 +58,21 @@ void ServerWorker::_onRunSelect() {
                 int _socketFdTemp = it->getConnectedSockFd();
                 if(FD_ISSET(_socketFdTemp, &_readfds)){
                     char * recvFromBuffer = it->recvFromBuffer();
-
-//                    if(!recvFromBuffer){
-//                        //client diconnected, need to be removed
-//                        //todo remove can be expensive, could be exhanced
-//                        _connectedClients.erase(it);
-//                    }
-//                    delete recvFromBuffer;
-
+                    if(!recvFromBuffer){
+                        //client diconnected, need to be removed
+                        std::cout << "client disconnected, socket=" << it->getConnectedSockFd() << std::endl;
+                        _connectedClients.erase(it);
+                        //since erased, it++ not required
+                        continue;
+                    }
+                    delete recvFromBuffer;
                 }
                 it++;
             }
+
         }
 
         //extra stuff ... e.g.heartbeat
-
-
     }
 
 
@@ -81,6 +84,10 @@ bool ServerWorker::isAvailable() {
 
 void ServerWorker::addConnectedClient(const ConnectedClient &connectedSockFd) {
     _connectedClients.push_back(connectedSockFd);
+}
+
+std::string ServerWorker::getWorkerName() {
+    return "WORKER" + std::to_string(workerCount);
 }
 
 

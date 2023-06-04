@@ -19,11 +19,20 @@
 class ChatClient {
 
 private:
+    //socket opened for the client
     int _sockFd;
 
+    //server addr to send and receive data
     struct sockaddr_in _serverAddr;
 
+    //control the client thread to stop
     bool _connected = false;
+
+    //count
+    static int clientCount;
+
+    //client name
+    int clientId;
 
     /**
      * initialise the socket,  client doesnt need to bind
@@ -74,6 +83,12 @@ public:
      * close the socket
      */
     void close();
+
+    /**
+     * get client name
+     * @return
+     */
+    std::string getClientName();
 
 };
 

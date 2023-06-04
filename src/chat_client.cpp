@@ -9,8 +9,12 @@
 #include <sys/select.h>
 #include <unistd.h>
 
-ChatClient::ChatClient(){
+int ChatClient::clientCount = 0;
 
+ChatClient::ChatClient(){
+    clientCount++;
+    clientId = clientCount;
+    std::cout << getClientName() << " created" << std::endl;
 }
 
 
@@ -32,8 +36,8 @@ bool ChatClient::connectToServer(const std::string& ip, int port){
         throw std::runtime_error("Failed to connect to server");
     }
 
-    //listen resp from server
-    std::thread *pThread = new std::thread(&ChatClient::_readMsg, this);
+    //listen resp from server NOT READ WHEN TEST BENCHMARK
+    //std::thread *pThread = new std::thread(&ChatClient::_readMsg, this);
 
 
     std::cout << "connected to server" << std::endl;
@@ -57,7 +61,7 @@ bool ChatClient::sendMsg(const std::string& msg){
             throw std::runtime_error(errorMsg);
         }
 
-        std::cout << "msg sent to server" << msg << std::endl;
+        std::cout << "msg sent to server " << msg << std::endl;
 
         return true;
     
@@ -142,4 +146,8 @@ void ChatClient::_setAddress(const std::string& address, int port) {
     }
     _serverAddr.sin_family = AF_INET;
     _serverAddr.sin_port = htons(port);
+}
+
+std::string ChatClient::getClientName() {
+    return "CLIENT" + std::to_string(clientId);
 }

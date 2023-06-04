@@ -23,7 +23,7 @@ int main(){
     signal(SIGTERM, processExit);
     signal(SIGHUP, processExit);
 
-    chatServer.start(SERVER_PORT,2);
+    chatServer.start(SERVER_PORT,2,  NUMBER_OF_WORKERS);
     std::cout << "Server started" << std::endl;
 
     while (true){
