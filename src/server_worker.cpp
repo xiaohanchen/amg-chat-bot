@@ -36,9 +36,7 @@ void ServerWorker::_onRunSelect() {
             continue;
         }
 
-        //multiplex IO
-
-        //select
+        //multiplex IO select
         fd_set _readfds;
         FD_ZERO(&_readfds);
         int maxSocketFd = 0;
@@ -48,8 +46,12 @@ void ServerWorker::_onRunSelect() {
         }
         //select API to check if there is data in buffer
         int bufferCheckRes = select(maxSocketFd + 1, &_readfds, NULL, NULL, NULL);
+
         if(bufferCheckRes == -1){
             std::cout << "read buffer check failed" << std::endl;
+            std::cout <<  strerror(errno) <<std::endl;
+            //todo get error code
+            sleep(5);
         }else if(bufferCheckRes == 0){
             std::cout << "read buffer check timeout" << std::endl;
         }else{
@@ -87,7 +89,7 @@ void ServerWorker::addConnectedClient(const ConnectedClient &connectedSockFd) {
 }
 
 std::string ServerWorker::getWorkerName() {
-    return "WORKER" + std::to_string(workerCount);
+    return "WORKER" + std::to_string(workerId);
 }
 
 
