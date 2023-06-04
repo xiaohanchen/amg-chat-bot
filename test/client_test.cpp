@@ -2,48 +2,43 @@
 // Created by Haiying on 17/05/2023.
 //
 
-//#ifdef SERVER_TEST
 
 #include <iostream>
 #include <unistd.h>
 #include "../include/chat_client.h"
 #include "../include/constants.h"
 
-ChatClient chatClient1;
-ChatClient chatClient2;
-ChatClient chatClient3;
-ChatClient chatClient4;
+std::vector<ChatClient*> chatClientList;
 
 void processExit(int i){
     std::cout << "process exit..." <<std::endl;
-    chatClient1.close();
-    chatClient2.close();
-    chatClient3.close();
-    chatClient4.close();
-    exit(0);
+    for (const auto &item: chatClientList) {
+        item->close();
+        delete item;
+    }
 
+    exit(0);
 }
 
 int main(){
+    //prevent connections from being open when process killed by ctrl+c and etc
     signal(SIGINT, processExit);
     signal(SIGTERM, processExit);
     signal(SIGHUP, processExit);
 
-    chatClient1.connectToServer(LOCALHOST, SERVER_PORT);
-    chatClient2.connectToServer(LOCALHOST, SERVER_PORT);
-    chatClient3.connectToServer(LOCALHOST, SERVER_PORT);
-    chatClient4.connectToServer(LOCALHOST, SERVER_PORT);
+    for (int i = 0; i < NUMBER_OF_CLIENTS; ++i) {
+        ChatClient* chatClient = new ChatClient();
+        chatClient->connectToServer(SERVER_HOST, SERVER_PORT);
+        chatClientList.push_back(chatClient);
+    }
 
 
     int i = 0;
     while (true){
-        chatClient1.sendMsg("1hello world " + std::to_string(i++));
-        chatClient2.sendMsg("2hello world " + std::to_string(i++));
-        chatClient3.sendMsg("3hello world " + std::to_string(i++));
-        chatClient4.sendMsg("4hello world " + std::to_string(i++));
-        sleep(1);
+        for (const auto &item: chatClientList) {
+            item -> sendMsg(item->getClientName() + ":hello world " + std::to_string(i++));
+        }
+        sleep(CLIENT_MSG_SEND_INTERVAL);
     }
     return 0;
 }
-
-//#endif

@@ -4,4 +4,5 @@ add_library(ChatLib STATIC
         chat_client.cpp
         chat_server.cpp
         connected_client.cpp
+        server_worker.cpp
         )

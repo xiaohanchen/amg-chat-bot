@@ -6,6 +6,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <iostream>
+#include "server_worker.h"
 
 #ifndef AMG_CHAT_BOT_CHAT_SERVER_H
 #define AMG_CHAT_BOT_CHAT_SERVER_H
@@ -25,7 +26,14 @@ private:
 
     //server address
     struct sockaddr_in _serverAddr;
+
+    //client address
     struct sockaddr_in _clientAddr;
+
+    //max worker thread num (only for NIO)
+    int _maxWorkerThreadNum = 1;
+
+    std::vector<ServerWorker *> _serverWorkers;
 
 
     /**
@@ -51,17 +59,18 @@ private:
      */
     int _acceptClient(int timeout=0);
 public:
+    explicit ChatServer(int maxWorkerThreadNum);
     ChatServer();
     ~ChatServer();
 
     /**
      * initialise the server, creating socket, start listening on port
      * @param port
-     * @param max_connections
+     * @param connectionQueueLen
      * @param max_events
      * @return
      */
-    bool start(int port, int max_connections=3);
+    bool start(int port, int connectionQueueLen=3, int maxNumWorker = 1);
 
     /**
      * accept client connection

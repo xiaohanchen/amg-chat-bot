@@ -12,11 +12,10 @@
 class ConnectedClient{
 
 private:
-    /**
-     * file descriptor when client connection accepted
-     */
+    //file descriptor when client connection accepted
     int _connectedSockFd;
 
+    //thread to
     std::thread * _msgConsumerThread = nullptr;
 
     /**
@@ -30,6 +29,24 @@ public:
 
     explicit ConnectedClient(int connectedSockFd);
 
+    /**
+     * deprecated, this is a BIO implementation
+     */
     void startRecv();
+
+    /**
+     * get connected socket file descriptor
+     * @return
+     */
+    int getConnectedSockFd() const;
+
+    /**
+     * read from buffer, should check buffer beforehand
+     * called by ServerWorker
+     *
+     * @param buffer buffer to be written to
+     * @return
+     */
+    char * recvFromBuffer();
 
 };

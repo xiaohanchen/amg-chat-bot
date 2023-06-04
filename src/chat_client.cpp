@@ -9,8 +9,12 @@
 #include <sys/select.h>
 #include <unistd.h>
 
-ChatClient::ChatClient(){
+int ChatClient::clientCount = 0;
 
+ChatClient::ChatClient(){
+    clientCount++;
+    clientId = clientCount;
+    std::cout << getClientName() << " created" << std::endl;
 }
 
 
@@ -32,12 +36,12 @@ bool ChatClient::connectToServer(const std::string& ip, int port){
         throw std::runtime_error("Failed to connect to server");
     }
 
-    //listen resp from server
-    std::thread *pThread = new std::thread(&ChatClient::_readMsg, this);
+    //listen resp from server NOT READ WHEN TEST BENCHMARK
+    //std::thread *pThread = new std::thread(&ChatClient::_readMsg, this);
 
 
     std::cout << "connected to server" << std::endl;
-
+    _connected = true;
     return true;
 }
 
@@ -57,7 +61,7 @@ bool ChatClient::sendMsg(const std::string& msg){
             throw std::runtime_error(errorMsg);
         }
 
-        std::cout << "msg sent to server" << msg << std::endl;
+        std::cout << "msg sent to server " << msg << std::endl;
 
         return true;
     
@@ -74,15 +78,14 @@ void ChatClient::close(){
 
 void ChatClient::_readMsg(){
 
-    //should use client connect status rather than bool
-    while(true){
+    while(_connected){
         _checkBufAndRecv(_sockFd);
 
     }
 
 }
 
-void ChatClient::_checkBufAndRecv(const int& _socketFd ) const{
+void ChatClient::_checkBufAndRecv(const int& _socketFd ){
     fd_set _readfds;
     FD_ZERO(&_readfds);
     FD_SET(_sockFd, &_readfds);
@@ -100,7 +103,10 @@ void ChatClient::_checkBufAndRecv(const int& _socketFd ) const{
         char _buffer[MAX_CHAR_TO_READ] = {0};
         ssize_t bytesReceived = recv(_sockFd, _buffer, MAX_CHAR_TO_READ, 0);
         if(bytesReceived < 1){
+            //server disconnected
             std::cout << "error to recv" << _buffer << std::endl;
+            _connected = false;
+
         }else{
             std::cout << "received bytes: " << bytesReceived << std::endl;
             std::cout << "received message: " << _buffer << std::endl;
@@ -140,4 +146,8 @@ void ChatClient::_setAddress(const std::string& address, int port) {
     }
     _serverAddr.sin_family = AF_INET;
     _serverAddr.sin_port = htons(port);
+}
+
+std::string ChatClient::getClientName() {
+    return "CLIENT" + std::to_string(clientId);
 }
