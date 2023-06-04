@@ -37,6 +37,10 @@ private:
      */
     void _setAddress(const std::string& address, int port);
 
+    /**
+     * 检查是否有数据可读，如果有，读取数据, BLOCKING
+     * @param socketFd
+     */
     void _checkBufAndRecv(const int& socketFd);
 
     /**

@@ -29,10 +29,10 @@ int main(){
     signal(SIGTERM, processExit);
     signal(SIGHUP, processExit);
 
-    chatClient1.connectToServer(LOCALHOST, SERVER_PORT);
-    chatClient2.connectToServer(LOCALHOST, SERVER_PORT);
-    chatClient3.connectToServer(LOCALHOST, SERVER_PORT);
-    chatClient4.connectToServer(LOCALHOST, SERVER_PORT);
+    chatClient1.connectToServer(SERVER_HOST, SERVER_PORT);
+    chatClient2.connectToServer(SERVER_HOST, SERVER_PORT);
+    chatClient3.connectToServer(SERVER_HOST, SERVER_PORT);
+    chatClient4.connectToServer(SERVER_HOST, SERVER_PORT);
 
 
     int i = 0;

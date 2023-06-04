@@ -8,8 +8,9 @@
 #define AMG_CHAT_BOT_CONSTANTS_H
 
 #define MAX_CLIENT_NUM_PER_WORKER 10000
+#define COMMUNICATION_TYPE SELECT
 
-const std::string LOCALHOST = "127.0.0.1";
+const std::string SERVER_HOST = "127.0.0.1";
 const int SERVER_PORT = 65102;
 const int MAX_CHAR_TO_READ = 256;
 
