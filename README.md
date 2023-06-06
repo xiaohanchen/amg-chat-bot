@@ -34,13 +34,17 @@ this project use LOCALHOST to run test, but starting examples in multiple hosts 
 ## BenchMark
 TPS = NUMBER_OF_CLIENTS / CLIENT_MSG_SEND_INTERVAL
 
-### 1 WORKER THREAD
+### IO:SELECT
+#### [1 WORKER THREAD]
 650 clients connection=> 350TPS
 beyond this: error to select from fileDescSet
 goal: 1024 TPS (select)
 
-### 10 WORKER THREADS * 100 CLIENTS PER THREAD
+#### [10 WORKER THREADS * 100 CLIENTS PER THREAD]
 
+
+
+### IO:KQUEUE
 
 
 
