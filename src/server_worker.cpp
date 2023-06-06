@@ -3,6 +3,7 @@
 //
 
 #include <sys/socket.h>
+#include <sys/event.h>
 #include "../include/server_worker.h"
 
 int ServerWorker::workerCount = 0;
@@ -36,7 +37,7 @@ void ServerWorker::_onRunSelect() {
             continue;
         }
 
-        //multiplex IO select
+        //multiplex IO select todo  add from _clientsToBeAdded if not empty
         fd_set _readfds;
         FD_ZERO(&_readfds);
         int maxSocketFd = 0;
@@ -44,12 +45,13 @@ void ServerWorker::_onRunSelect() {
             FD_SET(item.getConnectedSockFd(), &_readfds);
             maxSocketFd = std::max(maxSocketFd, item.getConnectedSockFd());
         }
+
         //select API to check if there is data in buffer
         int bufferCheckRes = select(maxSocketFd + 1, &_readfds, NULL, NULL, NULL);
 
         if(bufferCheckRes == -1){
             std::cout << "read buffer check failed" << std::endl;
-            std::cout <<  strerror(errno) <<std::endl;
+            perror("select failed:");
             //todo get error code
             sleep(5);
         }else if(bufferCheckRes == 0){
@@ -90,6 +92,53 @@ void ServerWorker::addConnectedClient(const ConnectedClient &connectedSockFd) {
 
 std::string ServerWorker::getWorkerName() {
     return "WORKER" + std::to_string(workerId);
+}
+
+void ServerWorker::_onRunKqueue() {
+
+    //create kqueue instance
+    int kq = kqueue();
+
+    //create event list, and
+
+
+    while(true){
+        //sleep if there is no new client
+        if(_connectedClients.empty()){
+            std::cout << "no connected client, sleep for 2s" << std::endl;
+            sleep(2);
+            continue;
+        }
+
+        //multiplex IO kqueue:
+
+        //register client connections for read event
+        for (const auto &item: _connectedClients){
+            struct kevent event;
+            //initialize event
+            EV_SET(&event, item.getConnectedSockFd(), EVFILT_READ, EV_ADD, 0, 0, NULL);
+            //add to kqueue
+            kevent(kq, &event, 1, NULL, 0, NULL);
+        }
+
+        //event
+        struct kevent eventReceived[_connectedClients.size()];
+        int n = kevent(kq, NULL, 0, eventReceived, _connectedClients.size(), NULL);
+        for (int i = 0; i <n; ++i) {
+            int clientFd = eventReceived[i].ident;
+            //found client connection and recev bytes from buffer
+            //todo
+
+        }
+    }
+
+
+
+
+
+
+
+
 }
 
 
