@@ -25,34 +25,55 @@ void ServerWorker::startRun() {
 
 //select
 void ServerWorker::_onRunSelect() {
+    fd_set readfds;
+    FD_ZERO(&readfds);
+    int maxSocketFd = 0;
+
     while(true){
         std::cout << getWorkerName() << " run select for clientNum=" << _connectedClients.size()<< std::endl;
 
-        //todo check if there are new clients to be added
+        //if client connection changes
+        if(_clientsChange){
+            std::cout << "client connection changes, update select fd set" << std::endl;
+            FD_ZERO(&readfds);
+            for (const auto &item: _connectedClients){
+                FD_SET(item.getConnectedSockFd(), &readfds);
+                maxSocketFd = std::max(maxSocketFd, item.getConnectedSockFd());
+            }
+            _clientsChange = false;
+        }
+
 
         //sleep if there is no new client
-        if(_connectedClients.empty()){
+        if(_connectedClients.empty() && _clientsToBeAdded.empty()){
             std::cout << "no connected client, sleep for 2s" << std::endl;
             sleep(2);
             continue;
         }
 
-        //multiplex IO select todo  add from _clientsToBeAdded if not empty
-        fd_set _readfds;
-        FD_ZERO(&_readfds);
-        int maxSocketFd = 0;
-        for (const auto &item: _connectedClients){
-            FD_SET(item.getConnectedSockFd(), &_readfds);
-            maxSocketFd = std::max(maxSocketFd, item.getConnectedSockFd());
+        //multiplex IO select :-
+        //check if there are new clients to be added
+        if(_clientsToBeAdded.size() > 0 ){
+            std::lock_guard<std::mutex> lock(_mutex);
+            for (const auto &item: _clientsToBeAdded){
+                _connectedClients.push_back(item);
+                FD_SET(item.getConnectedSockFd(), &readfds);
+                maxSocketFd = std::max(maxSocketFd, item.getConnectedSockFd());
+            }
+            _clientsToBeAdded.clear();
+            memcpy(&_readfds, &readfds, sizeof(fd_set));
+        }else{
+            memcpy(&readfds, &_readfds, sizeof(fd_set));
         }
 
+
+
         //select API to check if there is data in buffer
-        int bufferCheckRes = select(maxSocketFd + 1, &_readfds, NULL, NULL, NULL);
+        int bufferCheckRes = select(maxSocketFd + 1, &readfds, NULL, NULL, NULL);
 
         if(bufferCheckRes == -1){
             std::cout << "read buffer check failed" << std::endl;
             perror("select failed:");
-            //todo get error code
             sleep(5);
         }else if(bufferCheckRes == 0){
             std::cout << "read buffer check timeout" << std::endl;
@@ -60,12 +81,14 @@ void ServerWorker::_onRunSelect() {
             //recv from rBuffer if ready
             for (auto it = _connectedClients.begin(); it != _connectedClients.end();) {
                 int _socketFdTemp = it->getConnectedSockFd();
-                if(FD_ISSET(_socketFdTemp, &_readfds)){
+                if(FD_ISSET(_socketFdTemp, &readfds)){
                     char * recvFromBuffer = it->recvFromBuffer();
                     if(!recvFromBuffer){
                         //client diconnected, need to be removed
                         std::cout << "client disconnected, socket=" << it->getConnectedSockFd() << std::endl;
                         _connectedClients.erase(it);
+                        _clientsChange = true;
+                        FD_CLR(it->getConnectedSockFd(), &readfds);
                         //since erased, it++ not required
                         continue;
                     }
@@ -87,7 +110,8 @@ bool ServerWorker::isAvailable() {
 }
 
 void ServerWorker::addConnectedClient(const ConnectedClient &connectedSockFd) {
-    _connectedClients.push_back(connectedSockFd);
+    std::lock_guard<std::mutex> lock(_mutex);
+    _clientsToBeAdded.push_back(connectedSockFd);
 }
 
 std::string ServerWorker::getWorkerName() {

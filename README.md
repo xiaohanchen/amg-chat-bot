@@ -37,9 +37,8 @@ TPS = NUMBER_OF_CLIENTS / CLIENT_MSG_SEND_INTERVAL
 
 ### IO:SELECT
 #### [1 WORKER THREAD]
-650 clients connection=> 350TPS
-beyond this: error to select from fileDescSet
-goal: 1024 TPS (select)
+1000 clients connection=> 500TPS
+beyond this: invalid argument error (selct support 1024 bitmap)
 
 #### [10 WORKER THREADS * 100 CLIENTS PER THREAD]
 10000 clients connection=> 5000TPS

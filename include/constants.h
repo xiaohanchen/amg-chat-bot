@@ -18,7 +18,7 @@
 #define COMMUNICATION_TYPE SELECT
 
 // number of clients to be created
-#define NUMBER_OF_CLIENTS 700
+#define NUMBER_OF_CLIENTS 1000
 
 //interval in sec between group of clients sending message
 #define CLIENT_MSG_SEND_INTERVAL 2
