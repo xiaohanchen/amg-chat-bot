@@ -41,8 +41,7 @@ beyond this: error to select from fileDescSet
 goal: 1024 TPS (select)
 
 #### [10 WORKER THREADS * 100 CLIENTS PER THREAD]
-
-
+10000 clients connection=> 5000TPS
 
 ### IO:KQUEUE
 
