@@ -22,8 +22,14 @@ private:
     //connections to be added to "_connectedClients"
     std::vector<ConnectedClient> _clientsToBeAdded;
 
+    //mutex for _clientsToBeAdded (server & worker race condition)
+    std::mutex _mutex;
+
     //background thread to check if there is data to be read
     std::thread* _workerThread = nullptr;
+
+    //if the clients array changes
+    bool _clientsChange = false;
 
     //worker count
     static int workerCount;
@@ -31,7 +37,8 @@ private:
     //id
     int workerId;
 
-
+    //readFds for select
+    fd_set _readfds;
     /**
      * where multiplexing happens
      * select IO for _connectedClients

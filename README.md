@@ -30,19 +30,18 @@ this project use LOCALHOST to run test, but starting examples in multiple hosts 
 3. docker support so that can build linux in mac env
 4. CLI support to control server and client
 5. integrate google benchmark (https://github.com/google/benchmark)
-
+6. log system
+7. servers response on callback
 ## BenchMark
 TPS = NUMBER_OF_CLIENTS / CLIENT_MSG_SEND_INTERVAL
 
 ### IO:SELECT
 #### [1 WORKER THREAD]
-650 clients connection=> 350TPS
-beyond this: error to select from fileDescSet
-goal: 1024 TPS (select)
+1000 clients connection=> 500TPS
+beyond this: invalid argument error (selct support 1024 bitmap)
 
 #### [10 WORKER THREADS * 100 CLIENTS PER THREAD]
-
-
+10000 clients connection=> 5000TPS
 
 ### IO:KQUEUE
 
